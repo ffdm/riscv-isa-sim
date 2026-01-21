@@ -265,6 +265,8 @@ sim_t::sim_t(const cfg_t *cfg, bool halted,
 
 sim_t::~sim_t()
 {
+
+  
   for (size_t i = 0; i < procs.size(); i++)
     delete procs[i];
   delete debug_mmu;
@@ -277,9 +279,28 @@ int sim_t::run()
 
   htif_t::set_expected_xlen(harts.begin()->second->get_isa().get_max_xlen());
 
+  int exit_code = htif_t::run();
+
+  printf("\nFinal memory state and exit status:\n\n");
+  printf("@@@ Unified Memory contents hex on left, decimal on right: \n");
+  printf("@@@\n");
+  bool showing_data = 0;
+  for (reg_t addr = 0; addr < 0x10000; addr += 8) {
+      uint64_t dword = debug_mmu->load<uint64_t>(addr);
+      if (dword != 0) {
+        printf("@@@ mem[%5ld] = %016lx : %0ld\n", addr, dword, dword);
+        showing_data = 1;
+      } else if (showing_data != 0) {
+        printf("@@@\n");
+        showing_data = 0;
+      }
+  }
+  printf("@@@\n");
+  printf("@@@ System halted on WFI instruction\n@@@\n"); 
+
   // htif_t::run() will repeatedly call back into sim_t::idle(), each
   // invocation of which will advance target time
-  return htif_t::run();
+  return exit_code;
 }
 
 void sim_t::step(size_t n)
@@ -427,8 +448,11 @@ const char* sim_t::get_symbol(uint64_t paddr)
 
 void sim_t::reset()
 {
-  if (dtb_enabled)
-    set_rom();
+  //if (dtb_enabled)
+  //  set_rom();
+  for (size_t i = 0; i < procs.size(); i++) {
+      procs[i]->reset(); 
+  }
 }
 
 void sim_t::idle()
