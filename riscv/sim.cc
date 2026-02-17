@@ -285,7 +285,7 @@ int sim_t::run()
   printf("@@@ Unified Memory contents hex on left, decimal on right: \n");
   printf("@@@\n");
   bool showing_data = 0;
-  for (reg_t addr = 0; addr < 0x10000; addr += 8) {
+  for (reg_t addr = 0; addr < 0x8000; addr += 4) {
       uint64_t dword = debug_mmu->load<uint64_t>(addr);
       if (dword != 0) {
         printf("@@@ mem[%5ld] = %016lx : %0lu\n", addr, dword, dword);
