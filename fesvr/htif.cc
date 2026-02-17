@@ -276,8 +276,7 @@ int htif_t::run()
     uint64_t tohost;
 
     try {
-      if ((tohost = from_target(mem.read_uint64(tohost_addr))) != 0)
-        mem.write_uint64(tohost_addr, target_endian<uint64_t>::zero);
+      tohost = from_target(mem.read_uint64(tohost_addr));
     } catch (mem_trap_t& t) {
       bad_address("accessing tohost", t.get_tval());
     }

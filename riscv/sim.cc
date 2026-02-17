@@ -288,7 +288,7 @@ int sim_t::run()
   for (reg_t addr = 0; addr < 0x10000; addr += 8) {
       uint64_t dword = debug_mmu->load<uint64_t>(addr);
       if (dword != 0) {
-        printf("@@@ mem[%5ld] = %016lx : %0ld\n", addr, dword, dword);
+        printf("@@@ mem[%5ld] = %016lx : %0lu\n", addr, dword, dword);
         showing_data = 1;
       } else if (showing_data != 0) {
         printf("@@@\n");
@@ -298,7 +298,6 @@ int sim_t::run()
   printf("@@@\n");
   printf("@@@ System halted on WFI instruction\n@@@\n"); 
 
-  // htif_t::run() will repeatedly call back into sim_t::idle(), each
   // invocation of which will advance target time
   return exit_code;
 }
